@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:picknmelt/store/index.dart';
+import 'package:picknmelt/store/data_notifier.dart';
 import 'package:picknmelt/pages/landing_page.dart';
 
 void main() {
@@ -9,6 +9,9 @@ void main() {
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider.value(value: AppState()),
+      ChangeNotifierProvider(
+        create: (_) => DataNotifier(),
+      ),
     ],
     child: const MyApp(),
   ));
@@ -25,7 +28,7 @@ class MyApp extends StatelessWidget {
     //   systemNavigationBarIconBrightness: Brightness.dark,
     //   systemNavigationBarDividerColor: Colors.black.withOpacity(0),
     // ));
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+    // SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(

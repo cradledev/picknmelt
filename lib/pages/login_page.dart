@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:picknmelt/store/index.dart';
 import 'package:picknmelt/widgets/custom_formfield.dart';
@@ -7,6 +8,9 @@ import 'package:picknmelt/widgets/custom_button.dart';
 import 'package:picknmelt/widgets/custom_searchfield.dart';
 import 'package:picknmelt/widgets/custom_searchbtn.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
+
+import 'package:picknmelt/pages/searchresult_page.dart';
+import 'package:picknmelt/pages/scanner_page.dart';
 import 'dart:convert';
 
 class LoginPage extends StatefulWidget {
@@ -24,8 +28,12 @@ class _LoginPage extends State<LoginPage> {
   PanelController _pc;
   final double _initFabHeight = 50.0;
   double _fabHeight = 0;
-  double _panelHeightOpen = 0;
-  double _panelHeightClosed = 50.0;
+  double _panelHeightOpen = 0.0;
+  double _panelHeightClosed = 0.0;
+  double appHeight = 0.0;
+  double _delta = 0.0;
+  bool _show = true;
+  bool _rememberMeFlag = false;
   @override
   void initState() {
     super.initState();
@@ -35,6 +43,8 @@ class _LoginPage extends State<LoginPage> {
     _searchController = TextEditingController();
     _pc = PanelController();
     _fabHeight = _initFabHeight;
+    appHeight = AppBar().preferredSize.height;
+    _delta = 50;
     setState(() {});
   }
 
@@ -43,6 +53,20 @@ class _LoginPage extends State<LoginPage> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  void showAppBar() {
+    setState(() {
+      _show = true;
+      _delta = 50;
+    });
+  }
+
+  void hideAppBar() {
+    setState(() {
+      _show = false;
+      _delta = 20;
+    });
   }
 
   @override
@@ -55,19 +79,28 @@ class _LoginPage extends State<LoginPage> {
       child: Scaffold(
         resizeToAvoidBottomInset: true,
         backgroundColor: backColor,
-        // appBar: AppBar(
-        //   leading: Container(),
-        //   title: GestureDetector(
-        //     onTap: () {
-        //       Navigator.push(context,
-        //           MaterialPageRoute(builder: (context) => const TopDrawer()));
-        //     },
-        //     child: Image.asset("assets/images/top_draw_icon.png",
-        //         fit: BoxFit.contain),
-        //   ),
-        //   centerTitle: true,
-        //   backgroundColor: Theme.of(context).primaryColor,
-        // ),
+        appBar: _show
+            ? AppBar(
+                leading: Container(),
+                title: GestureDetector(
+                  onTap: () {
+                    _pc.open();
+                    hideAppBar();
+                  },
+                  child: Image.asset(
+                    "assets/images/top_draw_icon.png",
+                    fit: BoxFit.contain,
+                    width: 25,
+                    height: 25,
+                  ),
+                ),
+                centerTitle: true,
+                backgroundColor: Theme.of(context).primaryColor,
+              )
+            : PreferredSize(
+                child: Container(),
+                preferredSize: const Size(0.0, 0.0),
+              ),
         body: SlidingUpPanel(
           slideDirection: SlideDirection.DOWN,
           maxHeight: _panelHeightOpen,
@@ -76,47 +109,61 @@ class _LoginPage extends State<LoginPage> {
           parallaxOffset: 0.1,
           controller: _pc,
           isDraggable: false,
-          padding: const EdgeInsets.only(
-            bottom: 20,
-          ),
+          // padding: const EdgeInsets.only(
+          //   bottom: 20,
+          // ),
           color: Theme.of(context).primaryColor,
           panelBuilder: (sc) => _panel(sc),
           body: _body(),
-          onPanelSlide: (double pos) => setState(() {
-            _fabHeight =
-                pos * (_panelHeightOpen - _panelHeightClosed) + _initFabHeight;
-          }),
-          collapsed: GestureDetector(
-            onTap: () {
-              _pc.open();
-            },
-            child: Center(
-              child: Image.asset(
-                "assets/images/top_draw_icon.png",
-                fit: BoxFit.contain,
-                width: 15,
-                height: 15,
-              ),
-            ),
-          ),
-          header: Container(
-            width: MediaQuery.of(context).size.width,
-            padding: EdgeInsets.zero,
-            margin: EdgeInsets.zero,
-            child: GestureDetector(
-              onTap: () {
-                _pc.close();
-              },
-              child: Center(
-                child: Image.asset(
-                  "assets/images/top_draw_icon.png",
-                  fit: BoxFit.contain,
-                  width: 15,
-                  height: 15,
+          onPanelSlide: (double pos) {
+            setState(() {
+              _fabHeight = pos * (_panelHeightOpen - _panelHeightClosed) +
+                  _initFabHeight;
+              if (pos == 0.0) {
+                _show = true;
+              }
+            });
+          },
+          // collapsed: GestureDetector(
+          //   onTap: () {
+          //     _pc.open();
+          //   },
+          //   child: Center(
+          //     child: Image.asset(
+          //       "assets/images/top_draw_icon.png",
+          //       fit: BoxFit.contain,
+          //       width: 20,
+          //       height: 20,
+          //     ),
+          //   ),
+          // ),
+          header: (_pc.isAttached)
+              ? (_pc.isPanelOpen)
+                  ? Container(
+                      width: MediaQuery.of(context).size.width,
+                      padding: const EdgeInsets.only(bottom: 15),
+                      margin: EdgeInsets.zero,
+                      child: GestureDetector(
+                        onTap: () {
+                          _pc.close();
+                          showAppBar();
+                        },
+                        child: Center(
+                          child: Image.asset(
+                            "assets/images/top_up_icon.png",
+                            fit: BoxFit.contain,
+                            width: 20,
+                            height: 20,
+                          ),
+                        ),
+                      ),
+                    )
+                  : const SizedBox(
+                      height: 0,
+                    )
+              : const SizedBox(
+                  height: 0,
                 ),
-              ),
-            ),
-          ),
         ),
       ),
     );
@@ -127,13 +174,13 @@ class _LoginPage extends State<LoginPage> {
       child: SingleChildScrollView(
         child: Container(
           margin: const EdgeInsets.only(top: 10),
-          height: MediaQuery.of(context).size.height - 80,
+          height: MediaQuery.of(context).size.height - appHeight - _delta,
           width: MediaQuery.of(context).size.width,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               const SizedBox(
-                height: 100.0,
+                height: 20.0,
               ),
               Container(
                 width: MediaQuery.of(context).size.width * 0.8,
@@ -190,10 +237,21 @@ class _LoginPage extends State<LoginPage> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
+                                Checkbox(
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _rememberMeFlag = !_rememberMeFlag;
+                                    });
+                                  },
+                                  value: _rememberMeFlag,
+                                  activeColor: Theme.of(context).primaryColor,
+                                  materialTapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                ),
                                 Container(
                                   margin: const EdgeInsets.symmetric(
                                     vertical: 16,
-                                    horizontal: 24,
+                                    horizontal: 5,
                                   ),
                                   child: InkWell(
                                     onTap: () {},
@@ -214,7 +272,15 @@ class _LoginPage extends State<LoginPage> {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 AuthButton(
-                                  onTap: () {},
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const SerachResultPage(),
+                                      ),
+                                    );
+                                  },
                                   text: 'Sign In',
                                 ),
                               ],
@@ -241,6 +307,26 @@ class _LoginPage extends State<LoginPage> {
   }
 
   Widget _panel(ScrollController sc) {
+    // sc.addListener(() {
+    //   print("sdfsdfdsf");
+    //   state.notifyToast(context: context, message: "sdfdsf");
+    //   // if (sc.position.userScrollDirection == ScrollDirection.reverse) {
+    //   //   // if (!isScrollingDown) {
+    //   //   //   isScrollingDown = true;
+    //   //   //   _show = false;
+    //   //   //   hideAppBar();
+    //   //   // }
+    //   //   state.notifyToastDanger(context: context, message: "sdfdsf");
+    //   // }
+    //   // if (sc.position.userScrollDirection == ScrollDirection.forward) {
+    //   //   // if (isScrollingDown) {
+    //   //   //   isScrollingDown = false;
+    //   //   //   _show = true;
+    //   //   //   showAppBar();
+    //   //   // }
+    //   //   state.notifyToastDanger(context: context, message: "yyyyyyyyyy");
+    //   // }
+    // });
     return MediaQuery.removePadding(
       context: context,
       removeTop: true,
@@ -297,21 +383,33 @@ class _LoginPage extends State<LoginPage> {
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
-            children: const <Widget>[
-              Icon(
-                Icons.scanner,
-                color: Colors.white,
-                size: 24.0,
-              ),
-              SizedBox(
-                width: 5,
-              ),
-              Text(
-                "Scanner",
-                style: TextStyle(
-                  fontWeight: FontWeight.normal,
-                  fontSize: 22.0,
-                  color: Colors.white,
+            children: <Widget>[
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const ScannerPage()));
+                },
+                child: Row(
+                  children: const [
+                    Icon(
+                      Icons.scanner,
+                      color: Colors.white,
+                      size: 24.0,
+                    ),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    Text(
+                      "Scanner",
+                      style: TextStyle(
+                        fontWeight: FontWeight.normal,
+                        fontSize: 22.0,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

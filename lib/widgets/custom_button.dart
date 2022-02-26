@@ -13,7 +13,7 @@ class AuthButton extends StatelessWidget {
       child: Container(
         width: MediaQuery.of(context).size.width * 0.25,
         height: MediaQuery.of(context).size.height * 0.06,
-        margin: const EdgeInsets.only(left: 20, right: 20),
+        margin: const EdgeInsets.only(left: 0, right: 0),
         decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: const BorderRadius.all(

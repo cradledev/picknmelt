@@ -29,8 +29,8 @@ class CustomFormField extends StatelessWidget {
       children: [
         Container(
           margin: const EdgeInsets.only(
-            left: 20,
-            right: 20,
+            left: 0,
+            right: 0,
             bottom: 5,
           ),
           child: Text(
@@ -39,7 +39,7 @@ class CustomFormField extends StatelessWidget {
           ),
         ),
         Container(
-          margin: const EdgeInsets.only(left: 20, right: 20),
+          margin: const EdgeInsets.only(left: 0, right: 0),
           decoration: BoxDecoration(
             color: Theme.of(context).primaryColor,
             borderRadius: BorderRadius.circular(15),
