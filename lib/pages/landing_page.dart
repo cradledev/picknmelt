@@ -1,7 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:picknmelt/pages/login_page.dart';
 import 'package:picknmelt/store/index.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:picknmelt/pages/searchresult_page.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({Key key}) : super(key: key);
@@ -15,16 +20,34 @@ class _LandingPage extends State<LandingPage> {
   @override
   void initState() {
     super.initState();
-    state = Provider.of<AppState>(context, listen: false);
+    _initState();
     Future.delayed(const Duration(seconds: 2), () {
       if (state.user == null) {
         Navigator.push(context,
             MaterialPageRoute(builder: (context) => const LoginPage()));
       } else {
         // print('options');
-        Navigator.of(context).pop();
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const SerachResultPage()));
       }
     });
+  }
+
+  void _initState() async {
+    state = Provider.of<AppState>(context, listen: false);
+    state.sp = await SharedPreferences.getInstance();
+    String _temp = state.sp.getString('user') ?? "";
+    if (_temp.isNotEmpty) {
+      Map _tempUser = jsonDecode(_temp);
+      // print(_tempUser);
+      if (_tempUser.isNotEmpty) {
+        state.user = _tempUser;
+      } else {
+        state.user = null;
+      }
+    }
+
+    // print(state.user);
   }
 
   @override

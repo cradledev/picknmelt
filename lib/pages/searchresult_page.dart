@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
+
 import 'package:picknmelt/store/index.dart';
 import 'package:picknmelt/widgets/custom_searchbtn.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 // page
-import 'package:picknmelt/widgets/cart_list.dart';
+import 'package:picknmelt/widgets/stock_item.dart';
 import 'package:picknmelt/widgets/cart_total.dart';
 import 'package:picknmelt/pages/scanner_page.dart';
+import 'package:picknmelt/pages/login_page.dart';
 import 'dart:convert';
 
 class SerachResultPage extends StatefulWidget {
@@ -21,6 +24,10 @@ class SerachResultPage extends StatefulWidget {
 
 class _SerachResultPage extends State<SerachResultPage> {
   AppState state;
+
+  RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
+
   TextEditingController _searchController;
   PanelController _pc;
   final double _initFabHeight = 50.0;
@@ -44,13 +51,19 @@ class _SerachResultPage extends State<SerachResultPage> {
     _delta = 50;
     getStockData();
     setState(() {});
+    print(jsonDecode(state.sp.getString('user')));
   }
 
   void getStockData() async {
-    var _data = await state.loadInterestJsonFile("data/test.json");
     setState(() {
-      items.addAll(jsonDecode(_data));
-      status = false;
+      status = true;
+    });
+    var _data = await state.loadInterestJsonFile("data/test.json");
+    Future.delayed(const Duration(seconds: 2), () {
+      setState(() {
+        items.addAll(jsonDecode(_data));
+        status = false;
+      });
     });
   }
 
@@ -74,83 +87,92 @@ class _SerachResultPage extends State<SerachResultPage> {
     });
   }
 
+  void logOut() async {
+    await state.sp.clear();
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => const LoginPage()));
+  }
+
   @override
   Widget build(BuildContext context) {
     Color backColor = Colors.white;
     _panelHeightOpen = MediaQuery.of(context).size.height * .35;
     TextStyle headerText = Theme.of(context).textTheme.headline4;
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      backgroundColor: backColor,
-      appBar: _show
-          ? AppBar(
-              leading: Container(),
-              title: GestureDetector(
-                onTap: () {
-                  _pc.open();
-                  hideAppBar();
-                },
-                child: Image.asset(
-                  "assets/images/top_draw_icon.png",
-                  fit: BoxFit.contain,
-                  width: 25,
-                  height: 25,
+    return WillPopScope(
+      onWillPop: () {},
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
+        backgroundColor: backColor,
+        appBar: _show
+            ? AppBar(
+                leading: Container(),
+                title: GestureDetector(
+                  onTap: () {
+                    _pc.open();
+                    hideAppBar();
+                  },
+                  child: Image.asset(
+                    "assets/images/top_draw_icon.png",
+                    fit: BoxFit.contain,
+                    width: 25,
+                    height: 25,
+                  ),
                 ),
+                centerTitle: true,
+                backgroundColor: Theme.of(context).primaryColor,
+              )
+            : PreferredSize(
+                child: Container(),
+                preferredSize: const Size(0.0, 0.0),
               ),
-              centerTitle: true,
-              backgroundColor: Theme.of(context).primaryColor,
-            )
-          : PreferredSize(
-              child: Container(),
-              preferredSize: const Size(0.0, 0.0),
-            ),
-      body: SlidingUpPanel(
-        slideDirection: SlideDirection.DOWN,
-        maxHeight: _panelHeightOpen,
-        minHeight: _panelHeightClosed,
-        parallaxEnabled: true,
-        parallaxOffset: 0.1,
-        controller: _pc,
-        isDraggable: false,
-        color: Theme.of(context).primaryColor,
-        panelBuilder: (sc) => _panel(sc),
-        body: _body(),
-        onPanelSlide: (double pos) {
-          setState(() {
-            _fabHeight =
-                pos * (_panelHeightOpen - _panelHeightClosed) + _initFabHeight;
-            if (pos == 0.0) {
-              _show = true;
-            }
-          });
-        },
-        header: (_pc.isAttached)
-            ? (_pc.isPanelOpen)
-                ? Container(
-                    width: MediaQuery.of(context).size.width,
-                    padding: const EdgeInsets.only(bottom: 15),
-                    margin: EdgeInsets.zero,
-                    child: GestureDetector(
-                      onTap: () {
-                        _pc.close();
-                        showAppBar();
-                      },
-                      child: Center(
-                        child: Image.asset(
-                          "assets/images/top_up_icon.png",
-                          fit: BoxFit.contain,
-                          width: 20,
-                          height: 20,
+        body: SlidingUpPanel(
+          slideDirection: SlideDirection.DOWN,
+          maxHeight: _panelHeightOpen,
+          minHeight: _panelHeightClosed,
+          parallaxEnabled: true,
+          parallaxOffset: 0.1,
+          controller: _pc,
+          isDraggable: false,
+          color: Theme.of(context).primaryColor,
+          panelBuilder: (sc) => _panel(sc),
+          body: _body(),
+          onPanelSlide: (double pos) {
+            setState(() {
+              _fabHeight = pos * (_panelHeightOpen - _panelHeightClosed) +
+                  _initFabHeight;
+              if (pos == 0.0) {
+                _show = true;
+              }
+            });
+          },
+          header: (_pc.isAttached)
+              ? (_pc.isPanelOpen)
+                  ? Container(
+                      width: MediaQuery.of(context).size.width,
+                      padding: const EdgeInsets.only(bottom: 15),
+                      margin: EdgeInsets.zero,
+                      child: GestureDetector(
+                        onTap: () {
+                          _pc.close();
+                          showAppBar();
+                        },
+                        child: Center(
+                          child: Image.asset(
+                            "assets/images/top_up_icon.png",
+                            fit: BoxFit.contain,
+                            width: 20,
+                            height: 20,
+                          ),
                         ),
                       ),
-                    ),
-                  )
-                : const SizedBox(
-                    height: 0,
-                  )
-            : const SizedBox(
-                height: 0,
-              ),
+                    )
+                  : const SizedBox(
+                      height: 0,
+                    )
+              : const SizedBox(
+                  height: 0,
+                ),
+        ),
       ),
     );
   }
@@ -248,7 +270,83 @@ class _SerachResultPage extends State<SerachResultPage> {
                       Expanded(
                         child: Padding(
                           padding: EdgeInsets.zero,
-                          child: CartList(cartData: items),
+                          child: SmartRefresher(
+                            controller: _refreshController,
+                            enablePullUp: true,
+                            enablePullDown: true,
+                            header: const WaterDropHeader(),
+                            child: (items.isEmpty)
+                                ? const Center(
+                                    child: Text(
+                                      "No data yet.",
+                                      style: TextStyle(
+                                        fontFamily: "OpenSans",
+                                        fontSize: 16,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  )
+                                : SingleChildScrollView(
+                                    child: Column(
+                                      children: <Widget>[
+                                        for (var item in items)
+                                          Container(
+                                            child: StockItem(
+                                              data: item,
+                                            ),
+
+                                            width: MediaQuery.of(context)
+                                                .size
+                                                .width,
+                                            padding: const EdgeInsets.only(
+                                              left: 15,
+                                              right: 15,
+                                              top: 15,
+                                            ),
+                                            // margin: EdgeInsets.only(bottom: 20),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                            footer: CustomFooter(
+                              builder: (BuildContext context, LoadStatus mode) {
+                                Widget body;
+                                if (mode == LoadStatus.idle) {
+                                  body = const Text("pull up load");
+                                } else if (mode == LoadStatus.loading) {
+                                  body = const CupertinoActivityIndicator();
+                                } else if (mode == LoadStatus.failed) {
+                                  body = const Text("Load Failed!Click retry!");
+                                } else if (mode == LoadStatus.canLoading) {
+                                  body = const Text("release to load more");
+                                } else {
+                                  body = const Text("No more Data");
+                                }
+                                // if (nextPage == null) {
+                                //   body = Text("");
+                                // }
+                                return SizedBox(
+                                  height: 55.0,
+                                  child: Center(child: body),
+                                );
+                              },
+                            ),
+                            onRefresh: () {
+                              setState(() {
+                                items = [];
+                              });
+                              getStockData();
+                              _refreshController.refreshCompleted();
+                            },
+                            onLoading: () {
+                              if (items.isEmpty) {
+                                _refreshController.loadNoData();
+                              } else {
+                                getStockData();
+                              }
+                              _refreshController.loadComplete();
+                            },
+                          ),
                         ),
                       ),
                       const SizedBox(height: 30),
@@ -297,21 +395,30 @@ class _SerachResultPage extends State<SerachResultPage> {
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
-            children: const <Widget>[
-              Icon(
-                Icons.logout,
-                color: Colors.white,
-                size: 24.0,
-              ),
-              SizedBox(
-                width: 5,
-              ),
-              Text(
-                "Sign out",
-                style: TextStyle(
-                  fontWeight: FontWeight.normal,
-                  fontSize: 22.0,
-                  color: Colors.white,
+            children: <Widget>[
+              InkWell(
+                onTap: () {
+                  logOut();
+                },
+                child: Row(
+                  children: const [
+                    Icon(
+                      Icons.logout,
+                      color: Colors.white,
+                      size: 24.0,
+                    ),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    Text(
+                      "Sign out",
+                      style: TextStyle(
+                        fontWeight: FontWeight.normal,
+                        fontSize: 22.0,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -411,7 +518,9 @@ class _SerachResultPage extends State<SerachResultPage> {
               Expanded(
                   flex: 1,
                   child: SearchButton(
-                    onTap: () {},
+                    onTap: () {
+                      FocusScope.of(context).requestFocus(FocusNode());
+                    },
                     text: 'Search',
                   ))
             ],

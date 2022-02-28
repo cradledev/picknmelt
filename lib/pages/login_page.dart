@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:picknmelt/store/index.dart';
 import 'package:picknmelt/widgets/custom_formfield.dart';
 import 'package:picknmelt/widgets/custom_button.dart';
@@ -22,6 +23,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPage extends State<LoginPage> {
   AppState state;
+  Map user;
   TextEditingController _emailController;
   TextEditingController _passwordController;
   TextEditingController _searchController;
@@ -272,14 +274,8 @@ class _LoginPage extends State<LoginPage> {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 AuthButton(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const SerachResultPage(),
-                                      ),
-                                    );
+                                  onTap: () async {
+                                    await login();
                                   },
                                   text: 'Sign In',
                                 ),
@@ -307,26 +303,6 @@ class _LoginPage extends State<LoginPage> {
   }
 
   Widget _panel(ScrollController sc) {
-    // sc.addListener(() {
-    //   print("sdfsdfdsf");
-    //   state.notifyToast(context: context, message: "sdfdsf");
-    //   // if (sc.position.userScrollDirection == ScrollDirection.reverse) {
-    //   //   // if (!isScrollingDown) {
-    //   //   //   isScrollingDown = true;
-    //   //   //   _show = false;
-    //   //   //   hideAppBar();
-    //   //   // }
-    //   //   state.notifyToastDanger(context: context, message: "sdfdsf");
-    //   // }
-    //   // if (sc.position.userScrollDirection == ScrollDirection.forward) {
-    //   //   // if (isScrollingDown) {
-    //   //   //   isScrollingDown = false;
-    //   //   //   _show = true;
-    //   //   //   showAppBar();
-    //   //   // }
-    //   //   state.notifyToastDanger(context: context, message: "yyyyyyyyyy");
-    //   // }
-    // });
     return MediaQuery.removePadding(
       context: context,
       removeTop: true,
@@ -490,5 +466,29 @@ class _LoginPage extends State<LoginPage> {
         ],
       ),
     );
+  }
+
+  Future<void> login() async {
+    if (_emailController.text.trim().isNotEmpty &&
+        _passwordController.text.trim().isNotEmpty) {
+      state.sp = await SharedPreferences.getInstance();
+      String _username = _emailController.text;
+      String _password = _passwordController.text;
+      // Future.delayed(const Duration(seconds: 2), () {
+
+      // });
+      user = {'username': _username, 'password': _password};
+      state.sp.setString('user', jsonEncode(user));
+      state.user = user;
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const SerachResultPage(),
+        ),
+      );
+    } else {
+      state.notifyToastDanger(
+          context: context, message: "Username or Password must be not Empty.");
+    }
   }
 }
