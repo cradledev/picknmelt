@@ -362,10 +362,16 @@ class _LoginPage extends State<LoginPage> {
             children: <Widget>[
               InkWell(
                 onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const ScannerPage()));
+                  if (state.user == null) {
+                    state.notifyToastDanger(
+                        context: context, message: "User must sign in.");
+                  } else {
+                    _pc.close();
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const ScannerPage()));
+                  }
                 },
                 child: Row(
                   children: const [
@@ -422,15 +428,6 @@ class _LoginPage extends State<LoginPage> {
             children: [
               Expanded(
                 flex: 3,
-                // child: SerachFormField(
-                //   headingText: "KSU",
-                //   hintText: "SKU",
-                //   obsecureText: true,
-                //   controller: _searchController,
-                //   maxLines: 1,
-                //   textInputAction: TextInputAction.done,
-                //   textInputType: TextInputType.text,
-                // ),
                 child: TextField(
                   autofocus: false,
                   style: const TextStyle(color: Colors.white70),
@@ -458,7 +455,9 @@ class _LoginPage extends State<LoginPage> {
               Expanded(
                   flex: 1,
                   child: SearchButton(
-                    onTap: () {},
+                    onTap: () {
+                      search();
+                    },
                     text: 'Search',
                   ))
             ],
@@ -474,11 +473,11 @@ class _LoginPage extends State<LoginPage> {
       state.sp = await SharedPreferences.getInstance();
       String _username = _emailController.text;
       String _password = _passwordController.text;
-      // Future.delayed(const Duration(seconds: 2), () {
 
-      // });
       user = {'username': _username, 'password': _password};
-      state.sp.setString('user', jsonEncode(user));
+      if (_rememberMeFlag) {
+        state.sp.setString('user', jsonEncode(user));
+      }
       state.user = user;
       Navigator.push(
         context,
@@ -490,5 +489,20 @@ class _LoginPage extends State<LoginPage> {
       state.notifyToastDanger(
           context: context, message: "Username or Password must be not Empty.");
     }
+  }
+
+  void search() async {
+    if (state.user == null) {
+      state.notifyToastDanger(context: context, message: "User must sign in.");
+    } else {
+      _pc.close();
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const SerachResultPage(),
+        ),
+      );
+    }
+    _pc.close();
   }
 }

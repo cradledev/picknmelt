@@ -11,6 +11,11 @@ class DataNotifier with ChangeNotifier {
     notifyListeners();
   }
 
+  void updateStock(int _index, int _value) {
+    _stocks[_index]['name'] = _value.toString();
+    notifyListeners();
+  }
+
   int get totalPrice =>
-      stocks.fold(0, (total, current) => total + current.amount);
+      _stocks.fold(0, (total, current) => total + int.parse(current['name']));
 }

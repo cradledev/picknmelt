@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
+import 'package:picknmelt/store/data_notifier.dart';
 import 'package:provider/provider.dart';
 
 import 'package:picknmelt/store/index.dart';
@@ -51,7 +52,6 @@ class _SerachResultPage extends State<SerachResultPage> {
     _delta = 50;
     getStockData();
     setState(() {});
-    print(jsonDecode(state.sp.getString('user')));
   }
 
   void getStockData() async {
@@ -59,7 +59,9 @@ class _SerachResultPage extends State<SerachResultPage> {
       status = true;
     });
     var _data = await state.loadInterestJsonFile("data/test.json");
-    Future.delayed(const Duration(seconds: 2), () {
+    Future.delayed(const Duration(seconds: 1), () {
+      Provider.of<DataNotifier>(context, listen: false)
+          .updateStocks(jsonDecode(_data));
       setState(() {
         items.addAll(jsonDecode(_data));
         status = false;
@@ -89,8 +91,23 @@ class _SerachResultPage extends State<SerachResultPage> {
 
   void logOut() async {
     await state.sp.clear();
+    state.user = null;
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => const LoginPage()));
+  }
+
+  void search() async {
+    if (state.user == null) {
+      state.notifyToastDanger(context: context, message: "User must sign in.");
+    } else {
+      _pc.close();
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const SerachResultPage(),
+        ),
+      );
+    }
   }
 
   @override
@@ -274,7 +291,7 @@ class _SerachResultPage extends State<SerachResultPage> {
                             controller: _refreshController,
                             enablePullUp: true,
                             enablePullDown: true,
-                            header: const WaterDropHeader(),
+                            header: const WaterDropMaterialHeader(),
                             child: (items.isEmpty)
                                 ? const Center(
                                     child: Text(
@@ -292,8 +309,8 @@ class _SerachResultPage extends State<SerachResultPage> {
                                         for (var item in items)
                                           Container(
                                             child: StockItem(
-                                              data: item,
-                                            ),
+                                                data: item,
+                                                index: items.indexOf(item)),
 
                                             width: MediaQuery.of(context)
                                                 .size
@@ -431,6 +448,7 @@ class _SerachResultPage extends State<SerachResultPage> {
             children: <Widget>[
               InkWell(
                 onTap: () {
+                  _pc.close();
                   Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -520,6 +538,7 @@ class _SerachResultPage extends State<SerachResultPage> {
                   child: SearchButton(
                     onTap: () {
                       FocusScope.of(context).requestFocus(FocusNode());
+                      search();
                     },
                     text: 'Search',
                   ))

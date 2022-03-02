@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:picknmelt/store/data_notifier.dart';
+import 'package:picknmelt/pages/scanner_page.dart';
 
 class CartTotal extends StatelessWidget {
   const CartTotal({Key key}) : super(key: key);
@@ -49,7 +50,7 @@ class CartTotal extends StatelessWidget {
                 child: Image.asset(
                   "assets/images/search_footer_bg.png",
                   width: MediaQuery.of(context).size.width * 0.45,
-                  // height: MediaQuery.of(context).size.height * 0.1,
+                  height: 200,
                   fit: BoxFit.fill,
                 ),
               ),
@@ -89,7 +90,12 @@ class CartTotal extends StatelessWidget {
                         ),
                       ),
                       InkWell(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const ScannerPage()));
+                        },
                         child: Container(
                           width: MediaQuery.of(context).size.width * 0.35,
                           height: MediaQuery.of(context).size.height * 0.06,

@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
+import 'package:picknmelt/store/data_notifier.dart';
 import 'package:provider/provider.dart';
 
 import 'package:picknmelt/store/index.dart';
 
 class StockItem extends StatefulWidget {
   final Map data;
-  const StockItem({Key key, this.data}) : super(key: key);
+  final int index;
+  const StockItem({Key key, this.data, this.index}) : super(key: key);
   @override
   _StockItem createState() => _StockItem();
 }
@@ -76,8 +78,10 @@ class _StockItem extends State<StockItem> {
                         _temp = _temp - 1;
                         if (_temp < 1) _temp = 1;
                         _itemAmountController.text = _temp.toString();
-                        state.notifyToastDanger(
-                            context: context, message: _temp.toString());
+                        Provider.of<DataNotifier>(context, listen: false)
+                            .updateStock(widget.index, _temp);
+                        // state.notifyToastDanger(
+                        //     context: context, message: _temp.toString());
                       }
                     },
                     child: Icon(
@@ -95,9 +99,16 @@ class _StockItem extends State<StockItem> {
                       keyboardType: TextInputType.number,
                       controller: _itemAmountController,
                       onChanged: (text) {
-                        String _stockAmount = text;
-                        state.notifyToastDanger(
-                            context: context, message: _stockAmount.toString());
+                        int _stockAmount = 0;
+                        if (text.isEmpty) {
+                          _itemAmountController.text = "0";
+                        } else {
+                          _stockAmount = int.parse(text);
+                        }
+                        Provider.of<DataNotifier>(context, listen: false)
+                            .updateStock(widget.index, _stockAmount);
+                        // state.notifyToastDanger(
+                        //     context: context, message: _stockAmount.toString());
                       },
                       decoration: InputDecoration(
                         filled: true,
@@ -130,14 +141,18 @@ class _StockItem extends State<StockItem> {
                         _temp = _temp + 1;
                         if (_temp < 1) _temp = 1;
                         _itemAmountController.text = _temp.toString();
-                        state.notifyToastDanger(
-                            context: context, message: _temp.toString());
+                        Provider.of<DataNotifier>(context, listen: false)
+                            .updateStock(widget.index, _temp);
+                        // state.notifyToastDanger(
+                        //     context: context, message: _temp.toString());
                       } else {
                         int _temp = 0;
                         _temp = _temp + 1;
                         _itemAmountController.text = _temp.toString();
-                        state.notifyToastDanger(
-                            context: context, message: _temp.toString());
+                        Provider.of<DataNotifier>(context, listen: false)
+                            .updateStock(widget.index, _temp);
+                        // state.notifyToastDanger(
+                        //     context: context, message: _temp.toString());
                       }
                     },
                     child: Icon(
