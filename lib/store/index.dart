@@ -92,25 +92,25 @@ class AppState extends ChangeNotifier {
     return response;
   }
 
-  Future<http.Response> postAuth(context, url, payload) async {
-    var response = await http.post(endpoint + url, body: payload, headers: {
+  Future<http.Response> postAuth(url, payload) async {
+    var response = await http.post(url, body: payload, headers: {
       "accept": "application/json",
       'Authorization': 'Bearer ' + token
     });
 
-    if (kDebugMode) {
-      print(response.statusCode);
-    }
-    if (response.statusCode == 401) {
-      // Navigator.push(context,
-      //     new MaterialPageRoute(builder: (context) => new LoginPage()));
-    }
-    if (response.statusCode == 422) {
-      Map<String, dynamic> resp = jsonDecode(response.body);
-      Map<String, dynamic> errors = resp['errors'];
-      notifyToastDanger(
-          context: context, message: errors.values.toList()[0][0]);
-    }
+    // if (kDebugMode) {
+    //   print(response.statusCode);
+    // }
+    // if (response.statusCode == 401) {
+    //   // Navigator.push(context,
+    //   //     new MaterialPageRoute(builder: (context) => new LoginPage()));
+    // }
+    // if (response.statusCode == 422) {
+    //   Map<String, dynamic> resp = jsonDecode(response.body);
+    //   Map<String, dynamic> errors = resp['errors'];
+    //   notifyToastDanger(
+    //       context: context, message: errors.values.toList()[0][0]);
+    // }
     return response;
   }
 
