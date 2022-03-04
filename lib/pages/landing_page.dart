@@ -37,11 +37,13 @@ class _LandingPage extends State<LandingPage> {
     state = Provider.of<AppState>(context, listen: false);
     state.sp = await SharedPreferences.getInstance();
     String _temp = state.sp.getString('user') ?? "";
-    if (_temp.isNotEmpty) {
+    String _tempToken = state.sp.getString('token') ?? "";
+    if (_temp.isNotEmpty && _tempToken.isNotEmpty) {
       Map _tempUser = jsonDecode(_temp);
       // print(_tempUser);
       if (_tempUser.isNotEmpty) {
         state.user = _tempUser;
+        state.token = _tempToken;
       } else {
         state.user = null;
       }
@@ -79,8 +81,9 @@ class _LandingPage extends State<LandingPage> {
                     // height: 50,
                     child: const LinearProgressIndicator(
                       minHeight: 2,
-                      backgroundColor: Colors.lightBlue,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      backgroundColor: Colors.white,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                          Color.fromARGB(255, 99, 57, 16)),
                     ),
                   ),
                 ],

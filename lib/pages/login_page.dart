@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
@@ -71,13 +73,44 @@ class _LoginPage extends State<LoginPage> {
     });
   }
 
+  Future<bool> _onWillPop() async {
+    return (await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text(
+              'Are you sure?',
+              style: TextStyle(
+                  color: Colors.black, fontSize: 16, fontFamily: "HandOfSean"),
+            ),
+            content: const Text(
+              'Do you want to exit the App',
+              style: TextStyle(color: Colors.black),
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('No'),
+              ),
+              TextButton(
+                onPressed: () => exit(0),
+                child: const Text('Yes'),
+              ),
+            ],
+          ),
+        )) ??
+        false;
+  }
+
   @override
   Widget build(BuildContext context) {
     Color backColor = Colors.white;
     _panelHeightOpen = MediaQuery.of(context).size.height * .35;
     TextStyle headerText = Theme.of(context).textTheme.headline4;
     return WillPopScope(
-      onWillPop: () {},
+      onWillPop: () async {
+        bool result = await _onWillPop();
+        return result;
+      },
       child: Scaffold(
         resizeToAvoidBottomInset: true,
         backgroundColor: backColor,
@@ -321,7 +354,7 @@ class _LoginPage extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: const <Widget>[
               Text(
-                "Explore Pittsburgh",
+                "Non Authentication",
                 style: TextStyle(
                   fontWeight: FontWeight.normal,
                   fontSize: 22.0,
@@ -430,7 +463,7 @@ class _LoginPage extends State<LoginPage> {
                 flex: 3,
                 child: TextField(
                   autofocus: false,
-                  style: const TextStyle(color: Colors.white70),
+                  style: const TextStyle(color: Colors.black),
                   controller: _searchController,
                   keyboardType: TextInputType.text,
                   decoration: const InputDecoration(
@@ -475,16 +508,43 @@ class _LoginPage extends State<LoginPage> {
       String _password = _passwordController.text;
 
       user = {'username': _username, 'password': _password};
-      if (_rememberMeFlag) {
-        state.sp.setString('user', jsonEncode(user));
-      }
-      state.user = user;
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const SerachResultPage(),
-        ),
-      );
+      // String _url = "https://appdev01.picknmelt.com/wp-json/jwt-auth/v1/token";
+      String _url = "https://95.217.114.43/wp-json/jwt-auth/v1/token";
+      print("1111111111111111111");
+      state.postURL(Uri.parse(_url), user).then((data) {
+        var body = jsonDecode(data.body);
+        // print(body);
+        // print(data);
+        // print(data.statusCode);
+        if (data.statusCode == 422) {
+          Map<String, dynamic> response = jsonDecode(data.body);
+          Map<String, dynamic> errors = response['errors'];
+          state.notifyToastDanger(
+              context: context, message: errors.values.toList()[0][0]);
+        } else if (data.statusCode == 200) {
+          var data = body['data'];
+          if (_rememberMeFlag) {
+            state.sp.setString('user', jsonEncode(user));
+            state.sp.setString('token', data['token']);
+          }
+          state.user = user;
+          state.token = data['token'];
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const SerachResultPage(),
+            ),
+          );
+        } else if (data.statusCode == 403) {
+          state.notifyToastDanger(context: context, message: body['message']);
+        } else {
+          state.notifyToastDanger(
+              context: context, message: "Error occured while authenticating");
+        }
+      }).catchError((error) {
+        print(error);
+      });
+      print("2222222222222222222222222");
     } else {
       state.notifyToastDanger(
           context: context, message: "Username or Password must be not Empty.");
@@ -503,6 +563,6 @@ class _LoginPage extends State<LoginPage> {
         ),
       );
     }
-    _pc.close();
+    // _pc.close();
   }
 }

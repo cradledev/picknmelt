@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
+import 'package:picknmelt/pages/searchresult_page.dart';
 import 'package:provider/provider.dart';
 import 'package:picknmelt/store/index.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
@@ -11,6 +12,7 @@ import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 import 'package:picknmelt/widgets/custom_searchbtn.dart';
 // page
+import 'package:picknmelt/pages/login_page.dart';
 import 'dart:convert';
 
 class ScannerPage extends StatefulWidget {
@@ -69,6 +71,29 @@ class _ScannerPage extends State<ScannerPage> {
       _show = false;
       _delta = 20;
     });
+  }
+
+  void logOut() async {
+    await state.sp.clear();
+    state.user = null;
+    state.token = null;
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => const LoginPage()));
+  }
+
+  void search() async {
+    if (state.user == null) {
+      state.notifyToastDanger(context: context, message: "User must sign in.");
+    } else {
+      _pc.close();
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const SerachResultPage(),
+        ),
+      );
+    }
+    // _pc.close();
   }
 
   @override
@@ -205,10 +230,10 @@ class _ScannerPage extends State<ScannerPage> {
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const <Widget>[
+            children: <Widget>[
               Text(
-                "Explore Pittsburgh",
-                style: TextStyle(
+                state.user['username'],
+                style: const TextStyle(
                   fontWeight: FontWeight.normal,
                   fontSize: 22.0,
                   color: Colors.white,
@@ -221,21 +246,30 @@ class _ScannerPage extends State<ScannerPage> {
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
-            children: const <Widget>[
-              Icon(
-                Icons.logout,
-                color: Colors.white,
-                size: 24.0,
-              ),
-              SizedBox(
-                width: 5,
-              ),
-              Text(
-                "Sign out",
-                style: TextStyle(
-                  fontWeight: FontWeight.normal,
-                  fontSize: 22.0,
-                  color: Colors.white,
+            children: <Widget>[
+              InkWell(
+                onTap: () {
+                  logOut();
+                },
+                child: Row(
+                  children: const [
+                    Icon(
+                      Icons.logout,
+                      color: Colors.white,
+                      size: 24.0,
+                    ),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    Text(
+                      "Sign out",
+                      style: TextStyle(
+                        fontWeight: FontWeight.normal,
+                        fontSize: 22.0,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -305,7 +339,7 @@ class _ScannerPage extends State<ScannerPage> {
                 flex: 3,
                 child: TextField(
                   autofocus: false,
-                  style: const TextStyle(color: Colors.white70),
+                  style: const TextStyle(color: Colors.black),
                   controller: _searchController,
                   keyboardType: TextInputType.text,
                   decoration: const InputDecoration(
@@ -330,7 +364,9 @@ class _ScannerPage extends State<ScannerPage> {
               Expanded(
                   flex: 1,
                   child: SearchButton(
-                    onTap: () {},
+                    onTap: () {
+                      search();
+                    },
                     text: 'Search',
                   ))
             ],

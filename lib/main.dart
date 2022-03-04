@@ -6,6 +6,12 @@ import 'package:picknmelt/pages/landing_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+  //   systemNavigationBarColor: Colors.grey[200].withOpacity(0),
+  //   systemNavigationBarIconBrightness: Brightness.dark,
+  //   systemNavigationBarDividerColor: Colors.black.withOpacity(0),
+  // ));
+  // SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider.value(value: AppState()),
@@ -23,12 +29,6 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    //   systemNavigationBarColor: Colors.grey[200].withOpacity(0),
-    //   systemNavigationBarIconBrightness: Brightness.dark,
-    //   systemNavigationBarDividerColor: Colors.black.withOpacity(0),
-    // ));
-    // SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(

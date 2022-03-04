@@ -4,7 +4,8 @@ import 'package:picknmelt/store/data_notifier.dart';
 import 'package:picknmelt/pages/scanner_page.dart';
 
 class CartTotal extends StatelessWidget {
-  const CartTotal({Key key}) : super(key: key);
+  final Function() onTap;
+  const CartTotal({Key key, this.onTap}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +64,7 @@ class CartTotal extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       InkWell(
-                        onTap: () {},
+                        onTap: onTap,
                         child: Container(
                           width: MediaQuery.of(context).size.width * 0.25,
                           height: MediaQuery.of(context).size.height * 0.06,

@@ -3,13 +3,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
 import 'package:picknmelt/store/data_notifier.dart';
 import 'package:provider/provider.dart';
-
+import 'package:picknmelt/model/stock_item_model.dart';
 import 'package:picknmelt/store/index.dart';
 
 class StockItem extends StatefulWidget {
-  final Map data;
-  final int index;
-  const StockItem({Key key, this.data, this.index}) : super(key: key);
+  final StockItemModel data;
+  const StockItem({Key key, this.data}) : super(key: key);
   @override
   _StockItem createState() => _StockItem();
 }
@@ -23,7 +22,7 @@ class _StockItem extends State<StockItem> {
     super.initState();
     state = Provider.of<AppState>(context, listen: false);
     _itemAmountController = TextEditingController();
-    _itemAmountController.text = widget.data['name'];
+    _itemAmountController.text = widget.data.inventoryStock.toString();
   }
 
   @override
@@ -40,7 +39,7 @@ class _StockItem extends State<StockItem> {
             width: MediaQuery.of(context).size.width * 0.3,
             padding: const EdgeInsets.only(left: 5),
             child: Text(
-              "Inventory ${widget.data['name']}",
+              widget.data.inventoryName,
               textAlign: TextAlign.center,
               style: const TextStyle(
                   fontSize: 18.0,
@@ -54,7 +53,7 @@ class _StockItem extends State<StockItem> {
             width: MediaQuery.of(context).size.width * 0.2,
             padding: EdgeInsets.zero,
             child: Text(
-              widget.data['name'].toString(),
+              widget.data.inventoryStock.toString(),
               style: const TextStyle(
                 fontSize: 26.0,
                 fontWeight: FontWeight.w300,
@@ -76,10 +75,10 @@ class _StockItem extends State<StockItem> {
                         int _temp = int.parse(_stockAmount);
 
                         _temp = _temp - 1;
-                        if (_temp < 1) _temp = 1;
+                        if (_temp <= 0) _temp = 0;
                         _itemAmountController.text = _temp.toString();
                         Provider.of<DataNotifier>(context, listen: false)
-                            .updateStock(widget.index, _temp);
+                            .updateStock(widget.data.inventoryId, _temp);
                         // state.notifyToastDanger(
                         //     context: context, message: _temp.toString());
                       }
@@ -106,14 +105,14 @@ class _StockItem extends State<StockItem> {
                           _stockAmount = int.parse(text);
                         }
                         Provider.of<DataNotifier>(context, listen: false)
-                            .updateStock(widget.index, _stockAmount);
+                            .updateStock(widget.data.inventoryId, _stockAmount);
                         // state.notifyToastDanger(
                         //     context: context, message: _stockAmount.toString());
                       },
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: Theme.of(context).primaryColor,
-                        hintText: widget.data['name'].toString(),
+                        hintText: widget.data.inventoryStock.toString(),
                         // contentPadding: const EdgeInsets.only(
                         //     left: 10.0, bottom: 5.0, top: 5.0),
                         hintStyle: const TextStyle(
@@ -142,7 +141,7 @@ class _StockItem extends State<StockItem> {
                         if (_temp < 1) _temp = 1;
                         _itemAmountController.text = _temp.toString();
                         Provider.of<DataNotifier>(context, listen: false)
-                            .updateStock(widget.index, _temp);
+                            .updateStock(widget.data.inventoryId, _temp);
                         // state.notifyToastDanger(
                         //     context: context, message: _temp.toString());
                       } else {
@@ -150,7 +149,7 @@ class _StockItem extends State<StockItem> {
                         _temp = _temp + 1;
                         _itemAmountController.text = _temp.toString();
                         Provider.of<DataNotifier>(context, listen: false)
-                            .updateStock(widget.index, _temp);
+                            .updateStock(widget.data.inventoryId, _temp);
                         // state.notifyToastDanger(
                         //     context: context, message: _temp.toString());
                       }

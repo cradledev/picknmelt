@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:toast/toast.dart';
@@ -7,20 +9,29 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppState extends ChangeNotifier {
-  final String _endpoint = 'http://kotari.online/api/v1/';
+  final String _endpoint = 'https://appdev01.picknmelt.com/';
   // final String _url = 'http://kotari.online/';
 
   Map _user;
   String _token = '';
+  String _sku = '';
+  String _productName = '';
   SharedPreferences _sp;
   //get
   get endpoint => _endpoint;
   get user => _user;
   get sp => _sp;
   get token => _token;
+  get sku => _sku;
+  get productName => _productName;
   // set
   set user(value) {
     _user = value;
+    notifyListeners();
+  }
+
+  set sku(value) {
+    _sku = value;
     notifyListeners();
   }
 
@@ -31,6 +42,11 @@ class AppState extends ChangeNotifier {
 
   set token(value) {
     _token = value;
+    notifyListeners();
+  }
+
+  set productName(value) {
+    _productName = value;
     notifyListeners();
   }
 
@@ -97,20 +113,14 @@ class AppState extends ChangeNotifier {
       "accept": "application/json",
       'Authorization': 'Bearer ' + token
     });
+    return response;
+  }
 
-    // if (kDebugMode) {
-    //   print(response.statusCode);
-    // }
-    // if (response.statusCode == 401) {
-    //   // Navigator.push(context,
-    //   //     new MaterialPageRoute(builder: (context) => new LoginPage()));
-    // }
-    // if (response.statusCode == 422) {
-    //   Map<String, dynamic> resp = jsonDecode(response.body);
-    //   Map<String, dynamic> errors = resp['errors'];
-    //   notifyToastDanger(
-    //       context: context, message: errors.values.toList()[0][0]);
-    // }
+  Future<http.Response> postAuthWithContentType(url, payload) async {
+    var response = await http.post(url, body: payload, headers: {
+      'Content-type': 'application/x-www-form-urlencoded',
+      'Authorization': 'Bearer ' + token
+    });
     return response;
   }
 
@@ -121,6 +131,15 @@ class AppState extends ChangeNotifier {
       //     new MaterialPageRoute(builder: (context) => new LoginPage()));
     }
 
+    return response;
+  }
+
+  Future<http.Response> getAuth(url) async {
+    var response = await http.get(url, headers: {
+      "Accept": "*/*",
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token"
+    });
     return response;
   }
 
