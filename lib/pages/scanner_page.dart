@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:picknmelt/store/index.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'package:picknmelt/widgets/custom_searchbtn.dart';
 // page
@@ -42,15 +43,27 @@ class _ScannerPage extends State<ScannerPage> {
   @override
   void initState() {
     super.initState();
+    _customInit();
+    setState(() {});
+  }
+
+  void _customInit() async {
     state = Provider.of<AppState>(context, listen: false);
     _pc = PanelController();
     _fabHeight = _initFabHeight;
     appHeight = AppBar().preferredSize.height;
     _delta = 50;
     _flashToggle = false;
-    setState(() {});
+    final status = await Permission.camera.request();
+    if (status == PermissionStatus.granted) {
+      print('Permission granted');
+    } else if (status == PermissionStatus.denied) {
+      print('Permission denied. Show a dialog and again ask for the permission');
+    } else if (status == PermissionStatus.permanentlyDenied) {
+      print('Take the user to the settings page.');
+      await openAppSettings();
+    }
   }
-
   @override
   void dispose() {
     _searchController.dispose();

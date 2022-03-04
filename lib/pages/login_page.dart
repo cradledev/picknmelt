@@ -2,13 +2,13 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/rendering.dart';
+// import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:picknmelt/store/index.dart';
 import 'package:picknmelt/widgets/custom_formfield.dart';
 import 'package:picknmelt/widgets/custom_button.dart';
-import 'package:picknmelt/widgets/custom_searchfield.dart';
+// import 'package:picknmelt/widgets/custom_searchfield.dart';
 import 'package:picknmelt/widgets/custom_searchbtn.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -235,7 +235,7 @@ class _LoginPage extends State<LoginPage> {
               ),
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.only(left: 20, right: 20),
+                  padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
                   width: MediaQuery.of(context).size.width * 0.8,
                   // height: 50,
                   child: Column(
@@ -508,43 +508,55 @@ class _LoginPage extends State<LoginPage> {
       String _password = _passwordController.text;
 
       user = {'username': _username, 'password': _password};
-      // String _url = "https://appdev01.picknmelt.com/wp-json/jwt-auth/v1/token";
-      String _url = "https://95.217.114.43/wp-json/jwt-auth/v1/token";
+      String _url = "https://appdev01.picknmelt.com/wp-json/jwt-auth/v1/token";
+      // String _url = "https://95.217.114.43/wp-json/jwt-auth/v1/token";
       print("1111111111111111111");
-      state.postURL(Uri.parse(_url), user).then((data) {
-        var body = jsonDecode(data.body);
-        // print(body);
-        // print(data);
-        // print(data.statusCode);
-        if (data.statusCode == 422) {
-          Map<String, dynamic> response = jsonDecode(data.body);
-          Map<String, dynamic> errors = response['errors'];
-          state.notifyToastDanger(
-              context: context, message: errors.values.toList()[0][0]);
-        } else if (data.statusCode == 200) {
-          var data = body['data'];
-          if (_rememberMeFlag) {
+      // state.postURL(Uri.parse(_url), user).then((data) {
+      //   var body = jsonDecode(data.body);
+      //   // print(body);
+      //   // print(data);
+      //   // print(data.statusCode);
+      //   if (data.statusCode == 422) {
+      //     Map<String, dynamic> response = jsonDecode(data.body);
+      //     Map<String, dynamic> errors = response['errors'];
+      //     state.notifyToastDanger(
+      //         context: context, message: errors.values.toList()[0][0]);
+      //   } else if (data.statusCode == 200) {
+      //     var data = body['data'];
+      //     if (_rememberMeFlag) {
+      //       state.sp.setString('user', jsonEncode(user));
+      //       state.sp.setString('token', data['token']);
+      //     }
+      //     state.user = user;
+      //     state.token = data['token'];
+      //     Navigator.push(
+      //       context,
+      //       MaterialPageRoute(
+      //         builder: (context) => const SerachResultPage(),
+      //       ),
+      //     );
+      //   } else if (data.statusCode == 403) {
+      //     state.notifyToastDanger(context: context, message: body['message']);
+      //   } else {
+      //     state.notifyToastDanger(
+      //         context: context, message: "Error occured while authenticating");
+      //   }
+      // }).catchError((error) {
+      //   print(error);
+      // });
+      // print("2222222222222222222222222");
+      if (_rememberMeFlag) {
             state.sp.setString('user', jsonEncode(user));
-            state.sp.setString('token', data['token']);
+            // state.sp.setString('token', data['token']);
           }
           state.user = user;
-          state.token = data['token'];
+          // state.token = data['token'];
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => const SerachResultPage(),
             ),
           );
-        } else if (data.statusCode == 403) {
-          state.notifyToastDanger(context: context, message: body['message']);
-        } else {
-          state.notifyToastDanger(
-              context: context, message: "Error occured while authenticating");
-        }
-      }).catchError((error) {
-        print(error);
-      });
-      print("2222222222222222222222222");
     } else {
       state.notifyToastDanger(
           context: context, message: "Username or Password must be not Empty.");
