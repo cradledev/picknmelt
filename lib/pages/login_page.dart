@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
+// import 'package:flutter/cupertino.dart';
 // import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -105,7 +105,7 @@ class _LoginPage extends State<LoginPage> {
   Widget build(BuildContext context) {
     Color backColor = Colors.white;
     _panelHeightOpen = MediaQuery.of(context).size.height * .35;
-    TextStyle headerText = Theme.of(context).textTheme.headline4;
+    
     return WillPopScope(
       onWillPop: () async {
         bool result = await _onWillPop();

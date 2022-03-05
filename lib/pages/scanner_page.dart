@@ -2,8 +2,8 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/rendering.dart';
+// import 'package:flutter/cupertino.dart';
+// import 'package:flutter/rendering.dart';
 import 'package:picknmelt/pages/searchresult_page.dart';
 import 'package:provider/provider.dart';
 import 'package:picknmelt/store/index.dart';
@@ -14,8 +14,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:picknmelt/widgets/custom_searchbtn.dart';
 // page
 import 'package:picknmelt/pages/login_page.dart';
-import 'package:picknmelt/pages/searchresult_page.dart';
-import 'dart:convert';
 
 class ScannerPage extends StatefulWidget {
   const ScannerPage({Key key}) : super(key: key);
