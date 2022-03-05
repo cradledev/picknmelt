@@ -14,6 +14,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:picknmelt/widgets/custom_searchbtn.dart';
 // page
 import 'package:picknmelt/pages/login_page.dart';
+import 'package:picknmelt/pages/searchresult_page.dart';
 import 'dart:convert';
 
 class ScannerPage extends StatefulWidget {
@@ -58,12 +59,14 @@ class _ScannerPage extends State<ScannerPage> {
     if (status == PermissionStatus.granted) {
       print('Permission granted');
     } else if (status == PermissionStatus.denied) {
-      print('Permission denied. Show a dialog and again ask for the permission');
+      print(
+          'Permission denied. Show a dialog and again ask for the permission');
     } else if (status == PermissionStatus.permanentlyDenied) {
       print('Take the user to the settings page.');
       await openAppSettings();
     }
   }
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -418,6 +421,10 @@ class _ScannerPage extends State<ScannerPage> {
       setState(() {
         result = scanData;
       });
+      state.sku = scanData.code;
+      controller.pauseCamera();
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => const SerachResultPage()));
     });
   }
 
@@ -425,7 +432,7 @@ class _ScannerPage extends State<ScannerPage> {
     log('${DateTime.now().toIso8601String()}_onPermissionSet $p');
     if (!p) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('no Permission')),
+        const SnackBar(content: Text('No Permission.')),
       );
     }
   }

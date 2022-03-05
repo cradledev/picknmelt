@@ -122,6 +122,9 @@ class _SerachResultPage extends State<SerachResultPage> {
           status = false;
         });
       });
+      setState(() {
+        status = false;
+      });
     }
   }
 
